@@ -1,4 +1,4 @@
-name: React CI (Vite)
+name: React CI/CD (Vite)
 
 on:
   push:
@@ -9,35 +9,29 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run tests (Vitest)
       - name: Run tests
-        run: npm test
+        run: npm test --if-present
 
-      # Step 5: Build the project
       - name: Build project
         run: npm run build
 
-      # Step 6: Upload the production build as artifact
-      - name: Upload production build
-        uses: actions/upload-artifact@v4
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v6
         with:
-          name: vite-react-build
-          path: dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
