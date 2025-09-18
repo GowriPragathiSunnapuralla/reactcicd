@@ -50,4 +50,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          clean: true
+          force_orphan: true   # ✅ replaces 'clean'
+          keep_files: false    # optional, removes old files
