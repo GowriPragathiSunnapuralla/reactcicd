@@ -6,12 +6,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      dist-folder: ${{ steps.build.outputs.dist-folder }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,29 +26,38 @@ jobs:
         run: npm ci
 
       - name: Build project
-        id: build
-        run: |
-          npx vite build
-          echo "dist-folder=./dist" >> $GITHUB_OUTPUT
+        run: npx vite build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ./dist
 
   report-build-status:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Report build status
-        run: echo "Build completed successfully!"
+        run: echo "✅ Build completed successfully!"
 
   deploy:
     needs: [build, report-build-status]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          force_orphan: true   # ✅ replaces 'clean'
-          keep_files: false    # optional, removes old files
+          force_orphan: true
+
+      - name: Show deployment URL
+        run: |
+          echo "🚀 Deployed to: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
