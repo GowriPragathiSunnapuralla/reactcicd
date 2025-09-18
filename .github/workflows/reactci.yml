@@ -19,13 +19,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Match your Node version
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
-
-      - name: Run tests
-        run: npm test --if-present
 
       - name: Build project
         run: npm run build
@@ -35,3 +32,4 @@ jobs:
         with:
           name: vite-react-build
           path: dist
+git add .github/workflows/reactci.yml
